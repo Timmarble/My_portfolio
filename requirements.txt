@@ -40,4 +40,4 @@ python-decouple==3.8
 gunicorn==23.0.0
 
 # File Validation (optional)
-python-magic-bin==0.4.14  # For Windows
+#python-magic-bin==0.4.14  # For Windows
