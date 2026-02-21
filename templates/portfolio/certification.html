@@ -1,0 +1,54 @@
+{% extends 'portfolio/base.html' %}
+{% load static %}
+
+{% block content %}
+<section id="certification">
+    <div class="cert-container">
+        <h1>Certifications</h1>
+
+        <div class="cert-cards">
+            {% for certificate in certificates %}
+            <div class="cert-card">
+                <h3>{{ certificate.title }}</h3>
+                {% if certificate.description %}
+                <p>{{ certificate.description }}</p>
+                {% endif %}
+                <a href="{{ certificate.file.url }}"
+                   class="download-btn"
+                   download>
+                    Download Certificate
+                </a>
+            </div>
+            {% empty %}
+            <!-- Default certificates if none in database -->
+            <div class="cert-card">
+                <h3>AI Graphic Design</h3>
+                <a href="{% static 'certificates/AI for Graphic Design.pdf' %}"
+                   class="download-btn"
+                   download>
+                    Download Certificate
+                </a>
+            </div>
+
+            <div class="cert-card">
+                <h3>Data Analysis</h3>
+                <a href="{% static 'certificates/Data Analysis.pdf' %}"
+                   class="download-btn"
+                   download>
+                    Download Certificate
+                </a>
+            </div>
+
+            <div class="cert-card">
+                <h3>Digital Marketing & E-Commerce</h3>
+                <a href="{% static 'certificates/Digital Marketing & E-Commerce.pdf' %}"
+                   class="download-btn"
+                   download>
+                    Download Certificate
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

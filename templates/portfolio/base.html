@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timothy Mabele Portfolio</title>
+
+    <style>
+        /* Copy your existing CSS here */
+        html { scroll-behavior: smooth; }
+        * {
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial,sans-serif;
+        }
+        nav {
+            background:green;
+            padding:15px 30px;
+            position:fixed;
+            width:100%;
+            top:0;
+            z-index:1000;
+        }
+        nav ul {
+            list-style:none;
+            display:flex;
+            flex-wrap:wrap;
+        }
+        nav ul li {
+            margin-right:30px;
+        }
+        nav ul li a {
+            color:white;
+            text-decoration:none;
+            font-weight:bold;
+            font-size:18px;
+        }
+        section {
+            padding-top:80px;
+            min-height:100vh;
+        }
+        #home {
+            background:white;
+        }
+        .poster-container {
+            width:100%;
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+        }
+        .poster-container img {
+            max-width:100%;
+            max-height:95vh;
+            border-radius:10px;
+            box-shadow:0 5px 20px rgba(0,0,0,0.2);
+        }
+        #about, #projects, #certification, #cv, #contact {
+            background:#f5f5f5;
+        }
+        .about-container,
+        .projects-container,
+        .cert-container,
+        .cv-container,
+        .contact {
+            max-width:1000px;
+            margin:auto;
+            padding:50px;
+            background:white;
+            border-radius:10px;
+            box-shadow:0 3px 15px rgba(0,0,0,0.05);
+        }
+        h1 {
+            color:green;
+            text-align:center;
+            font-size:36px;
+            margin-bottom:20px;
+        }
+        h2 {
+            color:orange;
+            margin-top:30px;
+        }
+        h3 {
+            color:green;
+            margin-top:10px;
+        }
+        .about-container p,
+        .about-container ul {
+            margin-top:10px;
+            line-height:1.8;
+        }
+        .about-container ul {
+            margin-left:20px;
+        }
+        .project {
+            background:#f4f4f4;
+            padding:20px;
+            margin-top:20px;
+            border-left:6px solid green;
+        }
+        .cert-cards {
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:center;
+            gap:30px;
+            margin-top:30px;
+        }
+        .cert-card {
+            background:#f4f4f4;
+            padding:20px;
+            width:300px;
+            text-align:center;
+            border-radius:10px;
+        }
+        .download-btn {
+            display:inline-block;
+            background-color:green;
+            color:white;
+            padding:10px 15px;
+            margin-top:10px;
+            text-decoration:none;
+            border-radius:5px;
+            font-weight:bold;
+        }
+        .contact p {
+            margin-top:10px;
+            font-size:18px;
+        }
+        footer {
+            background:black;
+            color:white;
+            text-align:center;
+            padding:20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVIGATION -->
+    <nav>
+        <ul>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="{% url 'about' %}">About Me</a></li>
+            <li><a href="{% url 'projects' %}">Projects</a></li>
+            <li><a href="{% url 'certification' %}">Certification</a></li>
+            <li><a href="{% url 'cv' %}">CV</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    {% block content %}
+    {% endblock %}
+
+    <!-- FOOTER -->
+    <footer>
+        © 2026 Timothy Mabele Portfolio
+    </footer>
+</body>
+</html>

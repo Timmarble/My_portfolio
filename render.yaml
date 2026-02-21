@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: timothy-mabele-portfolio
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn portfolio_project.wsgi:application"
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+      - key: DATABASE_URL
+        fromDatabase:
+          name: portfolio-db
+          property: connectionString
+
+databases:
+  - name: portfolio-db
+    databaseName: portfolio
+    user: portfolio_user

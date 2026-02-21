@@ -1,0 +1,23 @@
+{% extends 'portfolio/base.html' %}
+{% load static %}
+
+{% block content %}
+<section id="cv">
+    <div class="cv-container">
+        <h1>Download CV</h1>
+        {% if cv %}
+        <a href="{{ cv.file.url }}"
+           class="download-btn"
+           download>
+            Download {{ cv.title }}
+        </a>
+        {% else %}
+        <a href="{% static 'certificates/CV_Timothy_Mabele.pdf' %}"
+           class="download-btn"
+           download>
+            Download CV
+        </a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

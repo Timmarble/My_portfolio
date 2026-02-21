@@ -1,0 +1,43 @@
+# Django Framework
+Django==6.0.2
+
+# Image Processing
+Pillow==11.1.0
+
+# Database (optional - if you want to use PostgreSQL instead of SQLite)
+# psycopg2-binary==2.9.10
+
+# Environment Variables (optional - for managing secrets)
+python-decouple==3.8
+
+# File Storage (optional - for cloud storage like AWS S3)
+# boto3==1.35.0
+# django-storages==1.14.4
+
+# Security (optional - for production)
+# whitenoise==6.7.0  # For serving static files efficiently
+
+# Development Tools (optional)
+# django-debug-toolbar==4.4.0  # For debugging during development
+
+# Core Django
+Django==6.0.2
+
+# Image Processing
+Pillow==11.1.0
+
+# Database for Production
+dj-database-url==2.1.0
+psycopg2-binary==2.9.10
+
+# Static Files
+whitenoise==6.7.0
+
+# Environment Variables
+python-decouple==3.8
+
+# WSGI Server for Production
+gunicorn==23.0.0
+
+# File Validation (optional)
+python-magic-bin==0.4.14  # For Windows

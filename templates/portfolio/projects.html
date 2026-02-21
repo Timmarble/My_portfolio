@@ -1,0 +1,621 @@
+{% extends 'portfolio/base.html' %}
+{% load static %}
+
+{% block content %}
+<section id="projects">
+    <div class="projects-container">
+        <h1>My Projects</h1>
+
+        <!-- File Upload Form (Visible only to admin/staff) -->
+        {% if user.is_staff %}
+        <div class="upload-section">
+            <button class="btn btn-success" onclick="toggleUploadForm()">➕ Upload New Project</button>
+
+            <div id="uploadForm" class="upload-form" style="display: none;">
+                <h3>Upload New Project</h3>
+                <form method="post" enctype="multipart/form-data" action="{% url 'upload_project' %}">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="title">Project Title *</label>
+                        <input type="text" name="title" id="title" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description *</label>
+                        <textarea name="description" id="description" rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="technologies">Technologies Used</label>
+                        <input type="text" name="technologies" id="technologies" placeholder="e.g., Python, Django, HTML, CSS">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="project_url">Project URL</label>
+                        <input type="url" name="project_url" id="project_url" placeholder="https://example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image">Project Image</label>
+                        <input type="file" name="image" id="image" accept="image/*">
+                        <small class="help-text">Recommended size: 800x600px (max 5MB)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pdf_file">PDF Document</label>
+                        <input type="file" name="pdf_file" id="pdf_file" accept=".pdf">
+                        <small class="help-text">Upload project documentation, report, or presentation (max 10MB)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additional_files">Additional Files</label>
+                        <input type="file" name="additional_files" id="additional_files" accept=".zip,.doc,.docx,.ppt,.pptx">
+                        <small class="help-text">Upload ZIP, DOC, or PPT files (max 20MB)</small>
+                    </div>
+
+                    <div class="form-group checkbox">
+                        <label>
+                            <input type="checkbox" name="is_featured"> Mark as Featured Project
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Upload Project</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleUploadForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        {% for project in projects %}
+        <div class="project-card" data-project-id="{{ project.id }}">
+            <div class="project-header">
+                <h3>{{ project.title }}</h3>
+                <div class="header-actions">
+                    {% if project.is_featured %}
+                    <span class="featured-badge">⭐ Featured</span>
+                    {% endif %}
+                    {% if user.is_staff %}
+                    <div class="admin-actions">
+                        <button class="btn-icon" onclick="editProject({{ project.id }})" title="Edit">✏️</button>
+                        <button class="btn-icon" onclick="deleteProject({{ project.id }})" title="Delete">🗑️</button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="project-content">
+                {% if project.image %}
+                <div class="project-image">
+                    <img src="{{ project.image.url }}" alt="{{ project.title }}">
+                    <div class="image-overlay">
+                        <span class="file-badge">📷 Image</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="project-details">
+                    <p class="project-description">{{ project.description }}</p>
+
+                    {% if project.technologies %}
+                    <div class="technologies">
+                        <strong>Technologies:</strong>
+                        <div class="tech-tags">
+                            {% for tech in project.technologies.split %}
+                            <span class="tech-tag">{{ tech }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- File Attachments Section -->
+                    {% if project.pdf_file or project.additional_files %}
+                    <div class="attachments">
+                        <strong>📎 Attachments:</strong>
+                        <div class="attachment-list">
+                            {% if project.pdf_file %}
+                            <div class="attachment-item">
+                                <span class="file-icon">📄</span>
+                                <a href="{{ project.pdf_file.url }}" target="_blank" class="attachment-link">
+                                    {{ project.pdf_file.name|slice:"17:"|truncatechars:30 }}
+                                </a>
+                                <span class="file-size">{{ project.pdf_file.size|filesizeformat }}</span>
+                                <div class="attachment-actions">
+                                    <a href="{{ project.pdf_file.url }}" target="_blank" class="btn-icon-small" title="View">👁️</a>
+                                    <a href="{{ project.pdf_file.url }}" download class="btn-icon-small" title="Download">⬇️</a>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if project.additional_files %}
+                            <div class="attachment-item">
+                                <span class="file-icon">📦</span>
+                                <a href="{{ project.additional_files.url }}" target="_blank" class="attachment-link">
+                                    {{ project.additional_files.name|slice:"21:"|truncatechars:30 }}
+                                </a>
+                                <span class="file-size">{{ project.additional_files.size|filesizeformat }}</span>
+                                <div class="attachment-actions">
+                                    <a href="{{ project.additional_files.url }}" download class="btn-icon-small" title="Download">⬇️</a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="project-links">
+                        {% if project.project_url %}
+                            {% if project.project_url != '#' %}
+                                <a href="{{ project.project_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                                    🔗 View Live Project
+                                </a>
+                            {% else %}
+                                <span class="btn btn-primary disabled">
+                                    🔗 Live Project (Coming Soon)
+                                </span>
+                            {% endif %}
+                        {% else %}
+                            <span class="btn btn-primary disabled">
+                                🔗 Live Project (Coming Soon)
+                            </span>
+                        {% endif %}
+
+                        {% if project.pdf_file %}
+                        <a href="{{ project.pdf_file.url }}" target="_blank" class="btn btn-secondary">
+                            📄 View Documentation
+                        </a>
+                        {% endif %}
+
+                        {% if project.additional_files %}
+                        <a href="{{ project.additional_files.url }}" download class="btn btn-secondary">
+                            📎 Download Additional Files
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-footer">
+                <div class="footer-left">
+                    <small>Added: {{ project.created_at|date:"F d, Y" }}</small>
+                    {% if project.updated_at != project.created_at %}
+                    <small>Updated: {{ project.updated_at|date:"F d, Y" }}</small>
+                    {% endif %}
+                </div>
+                {% if project.project_url %}
+                <div class="footer-right">
+                    <small class="url-display">🔗 {{ project.project_url|truncatechars:40 }}</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="project-placeholder">
+            <h3>Personal Portfolio Website</h3>
+            <p>Designed and developed using HTML and CSS.</p>
+            <div class="project-links">
+                <a href="#" class="btn btn-primary" onclick="return false;">View Project</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<style>
+/* File Upload Styles */
+.upload-section {
+    margin-bottom: 30px;
+    text-align: right;
+}
+
+.upload-form {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    margin-top: 20px;
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: green;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="url"],
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 2px dashed #ddd;
+    border-radius: 5px;
+    background: #f9f9f9;
+    cursor: pointer;
+}
+
+.form-group input[type="file"]:hover {
+    border-color: green;
+}
+
+.help-text {
+    display: block;
+    margin-top: 5px;
+    color: #999;
+    font-size: 12px;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #218838;
+}
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.btn-icon:hover {
+    background: #f0f0f0;
+}
+
+/* Technology Tags */
+.tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.tech-tag {
+    background: #e8f5e9;
+    color: green;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Attachments Section */
+.attachments {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+.attachments strong {
+    display: block;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.attachment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.attachment-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: white;
+    border-radius: 5px;
+    border-left: 3px solid green;
+}
+
+.file-icon {
+    font-size: 20px;
+}
+
+.attachment-link {
+    flex: 1;
+    color: #0066cc;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.attachment-link:hover {
+    text-decoration: underline;
+}
+
+.file-size {
+    color: #999;
+    font-size: 12px;
+    min-width: 60px;
+}
+
+.attachment-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-icon-small {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 3px;
+    text-decoration: none;
+    color: #666;
+}
+
+.btn-icon-small:hover {
+    background: #f0f0f0;
+    color: green;
+}
+
+/* Image Overlay */
+.project-image {
+    position: relative;
+}
+
+.image-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+/* Footer Improvements */
+.project-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.footer-left {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.footer-right {
+    color: #0066cc;
+}
+
+.url-display {
+    font-family: monospace;
+    background: #f0f0f0;
+    padding: 3px 8px;
+    border-radius: 3px;
+}
+
+/* File Preview Modal (Optional) */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow: auto;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: black;
+}
+
+/* Loading Indicator */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid green;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+// Toggle upload form visibility
+function toggleUploadForm() {
+    const form = document.getElementById('uploadForm');
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+    } else {
+        form.style.display = 'none';
+    }
+}
+
+// Edit project (redirect to admin or custom edit page)
+function editProject(projectId) {
+    // Redirect to admin edit page
+    window.location.href = `/admin/portfolio/project/${projectId}/change/`;
+}
+
+// Delete project with confirmation
+function deleteProject(projectId) {
+    if (confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+        // Create a form to POST the delete request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/project/${projectId}/delete/`;
+
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Preview file in modal
+function previewFile(fileUrl, fileType) {
+    const modal = document.getElementById('filePreviewModal');
+    const modalContent = document.getElementById('modalContent');
+
+    if (fileType === 'pdf') {
+        modalContent.innerHTML = `<iframe src="${fileUrl}" width="100%" height="600px"></iframe>`;
+    } else if (fileType.startsWith('image/')) {
+        modalContent.innerHTML = `<img src="${fileUrl}" style="max-width: 100%; max-height: 80vh;">`;
+    } else {
+        // For other files, just trigger download
+        window.location.href = fileUrl;
+        return;
+    }
+
+    modal.style.display = 'block';
+}
+
+// Close modal
+function closeModal() {
+    document.getElementById('filePreviewModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('filePreviewModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// File size validation
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+
+    fileInputs.forEach(input => {
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const maxSize = this.id === 'image' ? 5 * 1024 * 1024 : // 5MB for images
+                               this.id === 'pdf_file' ? 10 * 1024 * 1024 : // 10MB for PDFs
+                               20 * 1024 * 1024; // 20MB for other files
+
+                if (file.size > maxSize) {
+                    alert(`File size exceeds limit. Maximum size is ${maxSize / (1024 * 1024)}MB.`);
+                    this.value = ''; // Clear the input
+                }
+            }
+        });
+    });
+});
+
+// Preview images before upload
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const preview = document.getElementById('imagePreview');
+            if (!preview) {
+                const img = document.createElement('img');
+                img.id = 'imagePreview';
+                img.src = e.target.result;
+                img.style.maxWidth = '200px';
+                img.style.marginTop = '10px';
+                input.parentNode.appendChild(img);
+            } else {
+                preview.src = e.target.result;
+            }
+        }
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+
+<!-- File Preview Modal -->
+<div id="filePreviewModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="modalContent"></div>
+    </div>
+</div>
+{% endblock %}
